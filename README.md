@@ -9,3 +9,4 @@ Usage:
 Run the script with the desired IP range and optional output file:
 "python scanner.py -r 192.168.1.0/24 -o scan_results.txt"
 This script will automatically scan the provided IP range and log the results. Make sure you have the necessary permissions to scan the target network to avoid legal and ethical issues.
+"python nmap_scanner.py -r 192.168.1.0/24 -t syn -o output.txt -w 20"
