@@ -1,5 +1,6 @@
 Install Required Libraries:
 pip install python-nmap
+pip install python-nmap colorama
 Explanation:
 Nmap Scanning: The script uses the nmap library to scan a specified range of IP addresses (-r argument). It scans ports from 1 to 1024 on each IP in the range.
 Logging Results: The results of each scan are printed to the console and optionally logged to a file (-o argument).
