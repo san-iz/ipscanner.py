@@ -3,6 +3,7 @@ import os
 import platform
 import nmap
 from colorama import Fore, init
+import time
 
 # Initialize colorama
 init(autoreset=True)
@@ -59,20 +60,53 @@ def log_scan_result(ip, scan_result, output_file=None):
 
 def scan_network(ip_range, scan_type, output_file=None):
     nm = nmap.PortScanner()
-    if scan_type == 'syn':
-        nm.scan(hosts=ip_range, arguments='-sS -p 1-1024')
-    elif scan_type == 'udp':
-        nm.scan(hosts=ip_range, arguments='-sU -p 1-1024')
-    elif scan_type == 'os':
-        nm.scan(hosts=ip_range, arguments='-O')
-    elif scan_type == 'top-ports':
-        nm.scan(hosts=ip_range, arguments='--top-ports 100')
-    else:
-        raise ValueError("Unsupported scan type")
+    try:
+        if scan_type == 'syn':
+            nm.scan(hosts=ip_range, arguments='-sS -p 1-1024')
+        elif scan_type == 'udp':
+            nm.scan(hosts=ip_range, arguments='-sU -p 1-1024')
+        elif scan_type == 'os':
+            nm.scan(hosts=ip_range, arguments='-O')
+        elif scan_type == 'top-ports':
+            nm.scan(hosts=ip_range, arguments='--top-ports 100')
+        else:
+            raise ValueError("Unsupported scan type")
 
-    for host in nm.all_hosts():
-        scan_result = nm[host]
-        log_scan_result(host, scan_result, output_file)
+        for host in nm.all_hosts():
+            scan_result = nm[host]
+            log_scan_result(host, scan_result, output_file)
+
+    except KeyboardInterrupt:
+        print(Fore.RED + "Scan interrupted by user.")
+        for host in nm.all_hosts():
+            scan_result = nm[host]
+            log_scan_result(host, scan_result, output_file)
+    except Exception as e:
+        print(Fore.RED + f"An error occurred: {e}")
+
+def display_progress(ip_range, scan_type):
+    nm = nmap.PortScanner()
+    host_list = [host.strip() for host in ip_range.split(',')]
+    total_hosts = len(host_list)
+    try:
+        for i, host in enumerate(host_list):
+            print(f"Scanning {host} ({i + 1}/{total_hosts})...")
+            if scan_type == 'syn':
+                nm.scan(hosts=host, arguments='-sS -p 1-1024')
+            elif scan_type == 'udp':
+                nm.scan(hosts=host, arguments='-sU -p 1-1024')
+            elif scan_type == 'os':
+                nm.scan(hosts=host, arguments='-O')
+            elif scan_type == 'top-ports':
+                nm.scan(hosts=host, arguments='--top-ports 100')
+            else:
+                raise ValueError("Unsupported scan type")
+            scan_result = nm[host]
+            log_scan_result(host, scan_result, args.output_file)
+    except KeyboardInterrupt:
+        print(Fore.RED + "Scan interrupted by user.")
+    except Exception as e:
+        print(Fore.RED + f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    scan_network(args.range, args.scan_type, args.output_file)
+    display_progress(args.range, args.scan_type)
